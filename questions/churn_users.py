@@ -1,40 +1,28 @@
 import pandas as pd
 import numpy as np
-
-def getchurnedDf(timelimit,user_id,equity_value_data):
+import datetime
+def getchurnedDf(timelimit,equity_value_data):
     """
     :param timelimit: the number of days required for user to have churned
     :param user_id: string representing the user id
     :param equity_value_data: pandas data frame - ur equity value data
     :return: pandas dataframe with cols user id, churn times, churned
     """
-    # filtering user data
-    user_data = equity_value_data.loc[equity_value_data["user_id"] == user_id][["date", "close_equity"]]
-    # obtain the full lenght of the time series
-    # min_date = min(user_data["date"])
-    # full_year = pd.DataFrame(pd.date_range(start=min_date,end="2017-08-18",freq="d"),columns = ["date"])
-    # i like to use date instead of timestamp ;)
-    # full_year["date"] = full_year["date"].dt.date
-    # do left join on the table full year
-    # user_id_ts = pd.merge(full_year,user_data, how="left").sort_values(["date"])
-    # fill missing days with 1 ie <$10
-    # user_id_ts["close_equity"] = user_id_ts["close_equity"].fillna(1)
-    # user_id_ts.plot()
-    equity =  user_id_ts["close_equity"]
-    # count = 0
-    all_windows = []
-    window_size = 0
+    # sort the data
+    user_data = equity_value_data[["user_id","close_equity","date"]].sort_values(["user_id","date"],ascending=True)
+    # Shift the close equity value
+    user_data["prev_date"] = user_data.groupby(["user_id"])["date"].shift()
+    # drop the NAS
+    user_data = user_data.dropna()
+    # date difference btw consecuitve days
+    user_data["day_diff"] = (user_data["date"] - user_data["prev_date"]).astype('timedelta64[D]').astype(int)
 
-    for i in equity:
-        if i ==1:
-            window_size+=1
-        else:
-            all_windows.append(window_size)
-            window_size=0
-
-    output_df = pd.DataFrame()
-    output_df["less_10_windows"] = all_windows
-    output_df["user_id"] = user_id
-    output_df["churned_ind"] = np.where(output_df["less_10_windows"]>=timelimit,1,0)
-
-    return output_df
+    # if day_diff >= timelimit then 1 for churned else 0 for NOT churned
+    user_data["churn_ind"] = np.where(user_data["day_diff"]>=timelimit,1,0)
+    # print(user_data[user_data["user_id"]=="0012db34aa7b083f5714e7831195e54d"])
+    rolled_user_data = user_data[["user_id", "churn_ind"]].groupby(["user_id"], as_index=False).sum()
+    # print(rolled_user_data.columns)
+    rolled_user_data.columns = ["user_id","no_churn_times"]
+    rolled_user_data["churn_ind"] = np.where(rolled_user_data["no_churn_times"]>=1,1,0)
+    # print(rolled_user_data.head())
+    return rolled_user_data
