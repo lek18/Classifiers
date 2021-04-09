@@ -2,11 +2,11 @@ import pandas as pd
 import sys
 import os
 
-from questions.xgboostmodel import getData, runModel
+from pipelines.xgboostmodel import getData, runModel
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
-from questions.churn_users import getchurnedDf
+from pipelines.obtain_minority_class import getchurnedDf
 
 
 def main():
