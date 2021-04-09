@@ -10,10 +10,9 @@ from questions.churn_users import getchurnedDf
 
 
 def main():
-
-    path = os.getcwd()
-    feature_data = pd.read_csv(path+"/data/features_data.csv",header=0)
-    equity_value_data = pd.read_csv(path+"/data/equity_value_data.csv",header =0)
+    path1 = sys.argv[1]
+    feature_data = pd.read_csv(path1+"/data/features_data.csv",header=0)
+    equity_value_data = pd.read_csv(path1+"/data/equity_value_data.csv",header =0)
     equity_value_data["date"] = pd.to_datetime(equity_value_data["timestamp"].astype(str)).dt.date
 
     # Basic EDA
