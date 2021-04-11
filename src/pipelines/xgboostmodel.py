@@ -1,11 +1,9 @@
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from xgboost import XGBClassifier
-from sklearn.gaussian_process import GaussianProcessClassifier
 
-from helperfunctions.fixUnbalance import getBalanced
-from helperfunctions.getOneHotEncodings import getOneHotEncodings
+from src.helperfunctions.fixUnbalance import getBalanced
+from src.helperfunctions.getOneHotEncodings import getOneHotEncodings
 import pandas as pd
 
 def getData(churned_y_valyes, X_values,categorical_features, numerical_features):

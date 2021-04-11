@@ -1,23 +1,22 @@
 import pandas as pd
 import sys
-import os
 
-from pipelines.xgboostmodel import getData, runModel
+from src.pipelines.xgboostmodel import getData, runModel
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
-from pipelines.obtain_minority_class import getchurnedDf
+from src.pipelines.obtain_minority_class import getchurnedDf
 
 
 def main():
     path1 = sys.argv[1]
-    feature_data = pd.read_csv(path1+"/data/features_data.csv",header=0)
-    equity_value_data = pd.read_csv(path1+"/data/equity_value_data.csv",header =0)
+    feature_data = pd.read_csv(path1+"data/features_data.csv",header=0)
+    equity_value_data = pd.read_csv(path1+"data/equity_value_data.csv",header =0)
     equity_value_data["date"] = pd.to_datetime(equity_value_data["timestamp"].astype(str)).dt.date
 
     # Basic EDA
-    print("features",feature_data.head())
-    print(feature_data.columns)
+    # print("features",feature_data.head())
+    # print(feature_data.columns)
     categorical_features = ["risk_tolerance","investment_experience","liquidity_needs","platform","time_horizon"]
     numerical_features = ["time_spent","first_deposit_amount"]
     # print("timeseries",equity_value_data.head)
@@ -31,10 +30,10 @@ def main():
     # unique_users = equity_value_data["user_id"].unique().tolist()
     # print(len(unique_users))
     df = getchurnedDf(timelimit=28,equity_value_data=equity_value_data)
-    print(df.head())
+    # print(df.head())
     # print(df.sort_values("no_churn_times",ascending=False).head(20))
     # obtain percent of users that are churned
-    print("Number of Churned Users: {0}%".format(100*sum(df["churn_ind"])/len(df["churn_ind"])))
+    # print("Number of Churned Users: {0}%".format(100*sum(df["churn_ind"])/len(df["churn_ind"])))
 
     ## Question 2
 
@@ -46,6 +45,9 @@ def main():
 
     print(features_importance.head(10))
     print(features_importance.tail(10))
+
+    print(path1+"/data/feature_importance.csv")
+    features_importance.to_csv("/data/feature_importance.csv",index=False)
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
